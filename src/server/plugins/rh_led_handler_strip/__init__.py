@@ -42,7 +42,7 @@ def led_on(strip, color=ColorVal.WHITE, pattern=ColorPattern.SOLID, offset=0):
     if pattern == ColorPattern.SOLID:
         for i in range(strip.numPixels()):
             strip.setPixelColor(i, color)
-        r = requests.post(JSON_IP, '{"on":true,"v":true}') 
+        r = requests.post(JSON_IP, '{"on":true,"v":true,"mainseg":[{ "col": [[255, 255, 255]] } }]') 
     else:
         patternlength = sum(pattern)
 
@@ -78,9 +78,12 @@ def chase(args):
     for i in range(a['iterations'] * sum(a['pattern'])):
         led_on(strip, a['color'], a['pattern'], i)
         gevent.sleep(a['speedDelay']/1000.0)
+    
+    r = requests.post(JSON_IP, '{"on":true,"v":true,"seg": [{"fx":28, "col":[ [255,255,255],[0,0,0] ]}]}')
 
 def color_wheel(pos):
     """Generate rainbow colors across 0-255 positions."""
+    r = requests.post(JSON_IP, '{"on":true,"v":true,"seg": [{"fx":9 ]}]}')    
     if pos < 85:
         return Color(pos * 3, 255 - pos * 3, 0)
     elif pos < 170:
@@ -89,6 +92,7 @@ def color_wheel(pos):
     else:
         pos -= 170
         return Color(0, pos * 3, 255 - pos * 3)
+
 
 def rainbow(args):
     """Draw rainbow that fades across all pixels at once."""
@@ -101,8 +105,13 @@ def rainbow(args):
         strip.s(i, color_wheel(int(i * 256 / strip.numPixels()) & 255))
     strip.show()
 
+    r = requests.post(JSON_IP, '{"on":true,"v":true,"seg": [{"fx":9 ]}]}')    
+
 def rainbowCycle(args):
     """Draw rainbow that uniformly distributes itself across all pixels."""
+
+    r = requests.post(JSON_IP, '{"on":true,"v":true,"seg": [{"fx":9 ]}]}')    
+
     if 'strip' in args:
         strip = args['strip']
     else:
@@ -159,6 +168,8 @@ def clear(args):
         return False
 
     led_off(strip)
+
+    r = requests.post(JSON_IP, '{"on":false,"v":true}') 
 
 # Effects adapted from work by Hans Luijten https://www.tweaking4all.com/hardware/arduino/adruino-led-strip-effects/
 
