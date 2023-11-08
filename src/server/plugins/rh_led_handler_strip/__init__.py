@@ -7,6 +7,10 @@ import random
 import math
 from monotonic import monotonic
 
+import requests 
+import time
+JSON_IP = 'http://192.168.1.224/json/state'
+
 def leaderProxy(args):
     if 'effect_fn' in args:
         if 'results' in args and args['results']:
@@ -30,10 +34,15 @@ def leaderProxy(args):
                 return True
     return False
 
+def wled_equiv_color(color):
+    if color == ColorVal.WHITE:
+        return "white"
+
 def led_on(strip, color=ColorVal.WHITE, pattern=ColorPattern.SOLID, offset=0):
     if pattern == ColorPattern.SOLID:
         for i in range(strip.numPixels()):
             strip.setPixelColor(i, color)
+        r = requests.post(JSON_IP, '{"on":true,"v":true}') 
     else:
         patternlength = sum(pattern)
 
@@ -47,6 +56,7 @@ def led_on(strip, color=ColorVal.WHITE, pattern=ColorPattern.SOLID, offset=0):
 
 def led_off(strip):
     led_on(strip, ColorVal.NONE)
+    r = requests.post(JSON_IP, '{"on":false,"v":true}') 
 
 def chase(args):
     """Movie theater light style chaser animation."""
@@ -88,7 +98,7 @@ def rainbow(args):
         return False
 
     for i in range(strip.numPixels()):
-        strip.setPixelColor(i, color_wheel(int(i * 256 / strip.numPixels()) & 255))
+        strip.s(i, color_wheel(int(i * 256 / strip.numPixels()) & 255))
     strip.show()
 
 def rainbowCycle(args):
