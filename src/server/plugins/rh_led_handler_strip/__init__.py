@@ -35,14 +35,54 @@ def leaderProxy(args):
     return False
 
 def wled_equiv_color(color):
-    if color == ColorVal.WHITE:
-        return "white"
+    if color == ColorVal.NONE:
+        return '{"on":true,"v":true,"seg":[{"col":[[0, 0, 0]],"bri":255}]}'
+    elif color == ColorVal.BLUE:
+        return '{"on":true,"v":true,"seg":[{"col":[[0, 31, 255]],"bri":255}]}'
+    elif color == ColorVal.CYAN:
+        return '{"on":true,"v":true,"seg":[{"col":[[0, 255, 255]],"bri":255}]}'
+    elif color == ColorVal.DARK_ORANGE:
+        return '{"on":true,"v":true,"seg":[{"col":[[255, 63, 0]],"bri":255}]}'
+    elif color == ColorVal.DARK_YELLOW:
+        return '{"on":true,"v":true,"seg":[{"col":[[250, 210, 0]],"bri":255}]}'
+    elif color == ColorVal.GREEN:
+        return '{"on":true,"v":true,"seg":[{"col":[[0,255,0]],"bri":255}]}'
+    elif color == ColorVal.LIGHT_GREEN:
+        return '{"on":true,"v":true,"seg":[{"col":[[127,255,0]],"bri":255}]}'
+    elif color == ColorVal.ORANGE:
+        return '{"on":true,"v":true,"seg":[{"col":[[255,128,0]],"bri":255}]}'
+    elif color == ColorVal.MINT:
+        return '{"on":true,"v":true,"seg":[{"col":[[63,255,63]],"bri":255}]}'
+    elif color == ColorVal.PINK:
+        return '{"on":true,"v":true,"seg":[{"col":[[255,0,127]],"bri":255}]}'
+    elif color == ColorVal.PURPLE:
+        return '{"on":true,"v":true,"seg":[{"col":[[127,0,255]],"bri":255}]}'
+    elif color == ColorVal.RED:
+        return '{"on":true,"v":true,"seg":[{"col":[[255,0,0]],"bri":255}]}'
+    elif color == ColorVal.SKY:
+        return '{"on":true,"v":true,"seg":[{"col":[[0,191,255]],"bri":255}]}'
+    elif color == ColorVal.WHITE:
+        return '{"on":true,"v":true,"seg":[{"col":[[255, 255, 225]],"bri":255}]}'
+    elif color == ColorVal.YELLOW:
+        return '{"on":true,"v":true,"seg":[{"col":[[255, 255, 0]],"bri":255}]}'
+    else:
+        return '{"on":false,"v":true,"seg":[{"col":[[255, 255, 225]],"bri":255}]}'
+
+def unpack_rgb(color):
+    r = 0xFF & (color >> 16)
+    g = 0xFF & (color >> 8)
+    b = 0xFF & color
+
+    print(str(r) + ',' + str(g)+',' + str(b))
+    json = '{"on":true,"v":true,"seg":[{"fx":0, "col":[[' + str(r) + ',' + str(g) +',' + str(b) + ']],"bri":255}]}'
+    return json
+    # return r, g, b
 
 def led_on(strip, color=ColorVal.WHITE, pattern=ColorPattern.SOLID, offset=0):
     if pattern == ColorPattern.SOLID:
         for i in range(strip.numPixels()):
             strip.setPixelColor(i, color)
-        r = requests.post(JSON_IP, '{"on":true,"v":true,"mainseg":[{ "col": [[255, 255, 255]] } }]') 
+        r = requests.post(JSON_IP, unpack_rgb(color))
     else:
         patternlength = sum(pattern)
 
@@ -79,11 +119,11 @@ def chase(args):
         led_on(strip, a['color'], a['pattern'], i)
         gevent.sleep(a['speedDelay']/1000.0)
     
-    r = requests.post(JSON_IP, '{"on":true,"v":true,"seg": [{"fx":28, "col":[ [255,255,255],[0,0,0] ]}]}')
+    r = requests.post(JSON_IP, '{"on":true,"v":true,"seg": [{"fx":28, "col":[ [255,255,255],[0,0,0] ]}]}') # TODO
 
 def color_wheel(pos):
     """Generate rainbow colors across 0-255 positions."""
-    r = requests.post(JSON_IP, '{"on":true,"v":true,"seg": [{"fx":9 ]}]}')    
+    r = requests.post(JSON_IP, '{"on":true,"v":true,"seg": [{"fx":9 }]}')
     if pos < 85:
         return Color(pos * 3, 255 - pos * 3, 0)
     elif pos < 170:
@@ -102,15 +142,15 @@ def rainbow(args):
         return False
 
     for i in range(strip.numPixels()):
-        strip.s(i, color_wheel(int(i * 256 / strip.numPixels()) & 255))
+        strip.setPixelColor(i, color_wheel(int(i * 256 / strip.numPixels()) & 255))
     strip.show()
 
-    r = requests.post(JSON_IP, '{"on":true,"v":true,"seg": [{"fx":9 ]}]}')    
+    r = requests.post(JSON_IP, '{"on":true,"v":true,"seg": [{"fx":9 }]}')   
 
 def rainbowCycle(args):
     """Draw rainbow that uniformly distributes itself across all pixels."""
 
-    r = requests.post(JSON_IP, '{"on":true,"v":true,"seg": [{"fx":9 ]}]}')    
+    r = requests.post(JSON_IP, '{"on":true,"v":true,"seg": [{"fx":9 }]}')
 
     if 'strip' in args:
         strip = args['strip']
@@ -285,6 +325,7 @@ def sparkle(args):
                     strip.setPixelColor(px, a['color'])
 
         strip.show()
+        r = requests.post(JSON_IP, '{"on":true,"v":true,"seg": [{"fx":20, "col":[[255,255,255],[0,0,0]] }]}')
         gevent.sleep(a['speedDelay']/1000.0)
 
 def meteor(args):
