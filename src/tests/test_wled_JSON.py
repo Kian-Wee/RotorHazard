@@ -38,7 +38,9 @@ r.status_code
 print("eff")
 time.sleep(2)
 
-r = requests.post(JSON_IP, '{"on":true,"v":true,"seg":[{"col":[[255, 255, 225]],"bri":255}]}')
+# r = requests.post(JSON_IP, '{"on":true,"v":true,"seg":[{"col":[[255, 255, 225]],"bri":255}]}')
+
+r = requests.post(JSON_IP, '{"on":true,"v":true,"seg":[{"start":0, "stop":20, "col":[[255, 255, 225]],"bri":255}] ,"seg":[{"start":30, "stop":40, "col":[[255, 255, 225]],"bri":255}] }')
 
 # # json = '{"effects":Solid, "palettes":Fire}'
 # # r = requests.post('http://192.168.1.224/json/eff', json)

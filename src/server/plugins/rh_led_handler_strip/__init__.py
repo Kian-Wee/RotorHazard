@@ -73,16 +73,20 @@ def unpack_rgb(color):
     g = 0xFF & (color >> 8)
     b = 0xFF & color
 
-    print(str(r) + ',' + str(g)+',' + str(b))
-    json = '{"on":true,"v":true,"seg":[{"fx":0, "col":[[' + str(r) + ',' + str(g) +',' + str(b) + ']],"bri":255}]}'
-    return json
-    # return r, g, b
+    # print(str(r) + ',' + str(g)+',' + str(b))
+    # json = '{"on":true,"v":true,"seg":[{"fx":0, "col":[[' + str(r) + ',' + str(g) +',' + str(b) + ']],"bri":255}]}'
+    # return json
+    return r, g, b
 
 def led_on(strip, color=ColorVal.WHITE, pattern=ColorPattern.SOLID, offset=0):
+    r,g,b = unpack_rgb(color)
     if pattern == ColorPattern.SOLID:
         for i in range(strip.numPixels()):
             strip.setPixelColor(i, color)
-        r = requests.post(JSON_IP, unpack_rgb(color))
+        try:
+            r = requests.post(JSON_IP, '{"on":true,"v":true,"seg":[{"fx":0, "col":[[' + str(r) + ',' + str(g) +',' + str(b) + ']],"bri":255}]}')
+        except:
+            print("Unable to contact server")
     else:
         patternlength = sum(pattern)
 
@@ -91,6 +95,15 @@ def led_on(strip, color=ColorVal.WHITE, pattern=ColorPattern.SOLID, offset=0):
                 strip.setPixelColor(i, color)
             else:
                 strip.setPixelColor(i, ColorVal.NONE)
+
+        # wled_on=patternlength
+        # print(patternlength)
+        # print(pattern)
+        wled_off=patternlength-pattern[0]
+        try:
+            r = requests.post(JSON_IP, '{"on":true,"v":true,"seg":[{"fx":0, "col":[[' + str(r) + ',' + str(g) +',' + str(b) + ']],"bri":255, "grp":' + str(pattern[0]) + ', spc:' +  str(wled_off) + '}]}')
+        except:
+            print("Unable to contact server")
 
     strip.show()
 
