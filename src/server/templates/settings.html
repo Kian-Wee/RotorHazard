@@ -1377,6 +1377,13 @@
 			socket.emit('LED_brightness', data);
 		});
 
+		$('button.LED-off').change(function (event) {
+				var data = {
+					data: ('#wledip').val
+				};
+				socket.emit('wled', data);
+		});
+
 		/* positional RSSI adjustment */
 		var canDrag = false;
 		var isDragging = false;
@@ -1968,17 +1975,16 @@
 			</li>
 		</ol>
 
+		<div id="LED-effects"></div>
+
 		<!-- WLED GATES-->
 		<div class="form">
-			<li>
-				<div class="label-block">
-					<label for="Enter wled IP seperate by space(ie http://192.168.1.224)">{{ __('Name') }}</label>
-				</div>
-				<input type="text" id="Wled IP">
-			</li>
+			<div class="label-block">
+				<label for="wledip">{{ __('Enter wled IP seperated by space (ie http://192.168.1.224)') }}</label>
+			</div>
+			<input type="text" id="wledip">
 		</div>
 
-		<div id="LED-effects"></div>
 	</div>
 </div>
 {% endif %}

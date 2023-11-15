@@ -3097,6 +3097,12 @@ def on_set_option(data):
         'value': data['value'],
         })
 
+@SOCKET_IO.on('wled')
+@catchLogExceptionsWrapper
+def wled(data):
+    pass
+
+
 @SOCKET_IO.on('set_consecutives_count')
 @catchLogExceptionsWrapper
 def on_set_consecutives_count(data):

@@ -10,7 +10,7 @@ from monotonic import monotonic
 import requests
 import time
 JSON_IP = 'http://192.168.1.224/json/state'
-WLED_IPS=[]
+WLED_IPS=['http://192.168.1.224']
 
 def leaderProxy(args):
     if 'effect_fn' in args:
