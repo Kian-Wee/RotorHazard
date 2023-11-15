@@ -7,9 +7,10 @@ import random
 import math
 from monotonic import monotonic
 
-import requests 
+import requests
 import time
 JSON_IP = 'http://192.168.1.224/json/state'
+WLED_IPS=[]
 
 def leaderProxy(args):
     if 'effect_fn' in args:
@@ -33,6 +34,12 @@ def leaderProxy(args):
                 args['effect_fn'](args)
                 return True
     return False
+
+#Query for the number of leds on a particular strip
+def wled_num_of_leds(IP):
+    url=str(IP)+"/json/info"
+    response = requests.get(url)
+    return int(response["leds"]["count"])
 
 def wled_equiv_color(color):
     if color == ColorVal.NONE:
@@ -72,10 +79,6 @@ def unpack_rgb(color):
     r = 0xFF & (color >> 16)
     g = 0xFF & (color >> 8)
     b = 0xFF & color
-
-    # print(str(r) + ',' + str(g)+',' + str(b))
-    # json = '{"on":true,"v":true,"seg":[{"fx":0, "col":[[' + str(r) + ',' + str(g) +',' + str(b) + ']],"bri":255}]}'
-    # return json
     return r, g, b
 
 def led_on(strip, color=ColorVal.WHITE, pattern=ColorPattern.SOLID, offset=0):
@@ -83,10 +86,13 @@ def led_on(strip, color=ColorVal.WHITE, pattern=ColorPattern.SOLID, offset=0):
     if pattern == ColorPattern.SOLID:
         for i in range(strip.numPixels()):
             strip.setPixelColor(i, color)
-        try:
-            r = requests.post(JSON_IP, '{"on":true,"v":true,"seg":[{"fx":0, "col":[[' + str(r) + ',' + str(g) +',' + str(b) + ']],"bri":255}]}')
-        except:
-            print("Unable to contact server")
+
+        for ip in WLED_IPS:
+            try:
+                r = requests.post(str(ip)+'/json/state', '{"on":true,"v":true,"seg":[{"start":0, "stop":' + wled_num_of_leds(ip) + '"fx":0, "col":[[' + str(r) + ',' + str(g) +',' + str(b) + ']],"bri":255}]}')
+            except:
+                print("Unable to contact server")
+
     else:
         patternlength = sum(pattern)
 
